@@ -13,7 +13,7 @@ class TeamsController extends Controller
      */
     public function index()
     {
-        //
+        return "It works";
     }
 
     /**
