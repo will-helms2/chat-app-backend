@@ -19,7 +19,7 @@ Route::group(['prefix' => 'api'], function() {
 
     Route::resource('messages', 'MessagesController', [
         'except' => ['edit', 'create']
-    ])
+    ]);
 
     Route::post('user', [
         'uses' => 'AuthController@store'
