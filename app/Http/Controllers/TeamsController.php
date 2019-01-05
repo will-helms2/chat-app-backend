@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use App\Team;
 use Illuminate\Http\Request;
 
 class TeamsController extends Controller
@@ -13,18 +13,18 @@ class TeamsController extends Controller
      */
     public function index()
     {
-        return "It works";
+        $team = [
+			'name' => $name,
+			'desc' => $desc,
+			'team_id' => $team_id
+		];
+		$response = [
+			'msg' => 'Welcome back to team!',
+		];
+
+		return response()->json($response, 200);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
 
     /**
      * Store a newly created resource in storage.
@@ -34,7 +34,30 @@ class TeamsController extends Controller
      */
     public function store(Request $request)
     {
-        //
+		$this->validate($request, [
+			'name' => 'required',
+			'string' => 'required',
+		]);
+		$name = $request->input('name');
+		$desc = $request->input('string');
+        //return "It works";
+		$team = new Team([
+			'name' => $name,
+			'string' => $desc,
+		]);
+
+		if ($team->save()) {
+			$response = [
+				'team' => $team
+			];
+			return response()->json($response, 201);
+		}
+
+		$response = [
+			'msg' => 'An error has occured!'
+		];
+		return response()->json($response, 500);
+
     }
 
     /**
@@ -45,18 +68,7 @@ class TeamsController extends Controller
      */
     public function show($id)
     {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
+        return "It works";
     }
 
     /**
@@ -68,7 +80,27 @@ class TeamsController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+		$this->validate($request, [
+			'name' => 'required',
+			'string' => 'required',
+			'id' => 'required'
+		]);
+
+		$name = $request->input('name');
+		$desc = $request->input('string');
+		$team_id = $request->input('id');
+
+		$team = [
+			'name' => $name,
+			'desc' => $desc,
+			'team_id' => $team_id
+		];
+		$response = [
+			'msg' => 'Successfully updated team!',
+			'team' => $team
+		];
+
+		return response()->json($response, 200);
     }
 
     /**
@@ -79,6 +111,12 @@ class TeamsController extends Controller
      */
     public function destroy($id)
     {
-        //
+
+        $response = [
+			'msg' => 'Team has been deleted!',
+			'team_id' => $id
+		];
+
+		return response()->json($response, 200);
     }
 }
