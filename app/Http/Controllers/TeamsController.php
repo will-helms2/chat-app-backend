@@ -3,9 +3,16 @@
 namespace App\Http\Controllers;
 use App\Team;
 use Illuminate\Http\Request;
+use JWTAuth;
+use App\User;
 
 class TeamsController extends Controller
 {
+
+	// constructor
+	public function __construct() {
+		$this->middleware('jwt.auth');
+	}
     /**
      * Display a listing of the resource.
      *
@@ -13,15 +20,20 @@ class TeamsController extends Controller
      */
     public function index()
     {
-        $team = [
-			'name' => $name,
-			'desc' => $desc,
-			'team_id' => $team_id
-		];
-		$response = [
-			'msg' => 'Welcome back to team!',
-		];
 
+		if (!$user = JWTAuth::parseToken()->authenticate()) {
+			return response()->json(['msg' => 'User not found'], 404);
+		}
+
+		//$teams->users()->where('users.id', $user_id)->first()
+		$teams = $user->teams()->get();
+
+        //$teams = Team::all();
+
+		$response = [
+			'msg' => 'List of all your teams',
+			'teams' => $teams
+		];
 		return response()->json($response, 200);
     }
 

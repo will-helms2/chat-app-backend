@@ -1,11 +1,17 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use App\Team;
+use App\User;
 use Illuminate\Http\Request;
 
 class TeamsRegistrationController extends Controller
 {
+
+	// constructor
+	public function __construct() {
+		$this->middleware('jwt.auth');
+	}
     /**
      * Display a listing of the resource.
      *
@@ -32,22 +38,28 @@ class TeamsRegistrationController extends Controller
 
 		$team_id = $request->input('team_id');
 		$user_id = $request->input('user_id');
+		$team = Team::findOrFail($team_id);
+		$user = User::findOrFail($user_id);
 
-		$team = [
-			'name' => 'Vimbel Department',
-			'team_id' => $team_id
+		$message = [
+			'msg' => 'User is already registered to Team',
+			'user' => $user,
+			'team' => $team
 		];
+		if($team->users()->where('users.id', $user_id)->first()) {
+			return response()->json($message, 404);
+		}
 
-		$user = [
-			'name' => 'My Name'
-		];
+		$user->teams()->attach($team); // Adds to pivot table
+
 		$response = [
 			'msg' => 'Member added to team!',
 			'team' => $team,
 			'user' => $user
 		];
 
-			return response()->json($response, 201);
+
+		return response()->json($response, 201);
     }
 
     /**
