@@ -7,11 +7,6 @@ use Illuminate\Http\Request;
 
 class TeamsRegistrationController extends Controller
 {
-
-	// constructor
-	public function __construct() {
-		$this->middleware('jwt.auth');
-	}
     /**
      * Display a listing of the resource.
      *
@@ -32,30 +27,27 @@ class TeamsRegistrationController extends Controller
     public function store(Request $request)
     {
 		$this->validate($request, [
-			'team_id' => 'required',
-			'user_id' => 'required'
+			'team_id' => 'required'
 		]);
 
 		$team_id = $request->input('team_id');
-		$user_id = $request->input('user_id');
 		$team = Team::findOrFail($team_id);
-		$user = User::findOrFail($user_id);
 
 		$message = [
 			'msg' => 'User is already registered to Team',
-			'user' => $user,
+			'user' => $this->user(),
 			'team' => $team
 		];
-		if($team->users()->where('users.id', $user_id)->first()) {
+		if($team->users()->where('users.id', $this->user()->id)->first()) {
 			return response()->json($message, 404);
 		}
 
-		$user->teams()->attach($team); // Adds to pivot table
+		$this->user()->teams()->attach($team); // Adds to pivot table
 
 		$response = [
 			'msg' => 'Member added to team!',
 			'team' => $team,
-			'user' => $user
+			'user' => $this->user()
 		];
 
 

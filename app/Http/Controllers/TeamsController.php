@@ -8,11 +8,6 @@ use App\User;
 
 class TeamsController extends Controller
 {
-
-	// constructor
-	public function __construct() {
-		$this->middleware('jwt.auth');
-	}
     /**
      * Display a listing of the resource.
      *
@@ -21,14 +16,7 @@ class TeamsController extends Controller
     public function index()
     {
 
-		if (!$user = JWTAuth::parseToken()->authenticate()) {
-			return response()->json(['msg' => 'User not found'], 404);
-		}
-
-		//$teams->users()->where('users.id', $user_id)->first()
-		$teams = $user->teams()->get();
-
-        //$teams = Team::all();
+		$teams = $this->user()->teams()->get();
 
 		$response = [
 			'msg' => 'List of all your teams',
@@ -50,6 +38,7 @@ class TeamsController extends Controller
 			'name' => 'required',
 			'string' => 'required',
 		]);
+
 		$name = $request->input('name');
 		$desc = $request->input('string');
         //return "It works";
