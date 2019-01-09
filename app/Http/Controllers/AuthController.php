@@ -55,22 +55,27 @@ class AuthController extends Controller
 
     public function signin(Request $request)
     {
-        $this->validate($request, [
+        $request->validate([
             'email' => 'required|email',
             'password' => 'required'
         ]);
+
+        // if ($validator->fails()) {
+        //    $error = $validator->errors()->first();
+        //    return response()->json(compact('errors'), 404);
+        // }
 
         $credentials = $request->only('email', 'password');
 
             try {
                 if (! $token = JWTAuth::attempt($credentials)) {
-                    return response()->json(['error' => 'invalid_credentials'], 400);
+                    return response()->json(['error' => 'Email and Password do not match'], 400);
                 }
             } catch (JWTException $e) {
                 return response()->json(['error' => 'could_not_create_token'], 500);
             }
 
-        return response()->json(compact('token'));
+        return response()->json(compact('token'), 200);
     }
 
     public function getAuthenticatedUser()
