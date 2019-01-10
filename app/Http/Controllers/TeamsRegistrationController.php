@@ -8,17 +8,6 @@ use Illuminate\Http\Request;
 class TeamsRegistrationController extends Controller
 {
     /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
-    {
-        //
-    }
-
-
-    /**
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -34,13 +23,15 @@ class TeamsRegistrationController extends Controller
 		$team = Team::findOrFail($team_id);
 
 		$message = [
-			'msg' => 'User is already registered to Team',
+			'error' => 'User is already registered to Team',
 			'user' => $this->user(),
 			'team' => $team
 		];
 		if($team->users()->where('users.id', $this->user()->id)->first()) {
 			return response()->json($message, 404);
 		}
+    #// TODO: check to make sure the user has an invite. Security measure before Prod
+    //if($this->user()->invites())
 
 		$this->user()->teams()->attach($team); // Adds to pivot table
 

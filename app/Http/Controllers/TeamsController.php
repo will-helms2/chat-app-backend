@@ -15,14 +15,8 @@ class TeamsController extends Controller
      */
     public function index()
     {
-
-		$teams = $this->user()->teams()->get();
-
-		$response = [
-			'msg' => 'List of all your teams',
-			'teams' => $teams
-		];
-		return response()->json($response, 200);
+  		$teams = $this->user()->teams()->get();
+  		return response()->json(compact($teams), 200);
     }
 
 
@@ -34,30 +28,40 @@ class TeamsController extends Controller
      */
     public function store(Request $request)
     {
-		$this->validate($request, [
-			'name' => 'required',
-			'string' => 'required',
-		]);
+  		$this->validate($request, [
+  			'name' => 'required',
+  			'string' => 'required',
+  		]);
 
-		$name = $request->input('name');
-		$desc = $request->input('string');
-        //return "It works";
-		$team = new Team([
-			'name' => $name,
-			'string' => $desc,
-		]);
+  		$name = $request->input('name');
+  		$desc = $request->input('string');
 
-		if ($team->save()) {
-			$response = [
-				'team' => $team
-			];
-			return response()->json($response, 201);
-		}
+  		$team = new Team([
+  			'name' => $name,
+  			'string' => $desc,
+  		]);
 
-		$response = [
-			'msg' => 'An error has occured!'
-		];
-		return response()->json($response, 500);
+  		if ($team->save()) {
+
+        $channel = new Channel([
+          'team_id' => $team->id,
+    			'name' => 'general',
+    			'description' => 'This is where your team does some basic chat',
+    			'is_dm' => 0,
+    			'is_private' => 0
+    		]);
+
+        if($channel->save()){
+          
+        }
+
+  			return response()->json(compact('team'), 201);
+  		}
+
+  		$response = [
+  			'error' => 'An error has occured!'
+  		];
+  		return response()->json($response, 500);
 
     }
 
@@ -69,7 +73,10 @@ class TeamsController extends Controller
      */
     public function show($id)
     {
-        return "It works";
+      #// TODO: Make sure the user has accress to the team they are trying to load
+      $team = Team::with(['users', 'channels'])->findOrFail($id);
+
+      return response()->json(compact(team), 500);
     }
 
     /**

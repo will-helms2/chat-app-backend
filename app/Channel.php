@@ -7,11 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 class Channel extends Model
 {
 	protected $fillable = [
-        'name', 'description', 'is_dm', 'is_private'
+        'name', 'description', 'is_dm', 'is_private', 'team_id'
     ];
 
     public function teams() {
-		return $this->hasOne('App\Team');
+		return $this->belongsTo('App\Team');
 	}
 
 	public function users() {

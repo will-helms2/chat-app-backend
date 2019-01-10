@@ -47,4 +47,12 @@ class User extends Authenticatable implements JWTSubject
 	public function channels() {
 		return $this->belongsToMany('App\Channel');
 	}
+
+  public function invites() {
+    return $this->hasMany('App\Invite', 'invited_user_id', 'id');
+  }
+
+  public function sentInvites() {
+    return $this->hasMany('App\Invite', 'owner_user_id', 'id');
+  }
 }

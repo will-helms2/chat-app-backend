@@ -17,31 +17,29 @@ class AuthController extends Controller
         $this->validate($request, [
             'first_name' => 'required',
             'last_name' => 'required',
+            'username' => 'required',
             'email' => 'required|email',
             'password' => 'required|min:5'
         ]);
 
         $first_name = $request->input('first_name');
         $last_name = $request->input('last_name');
+        $username = $request->input('username');
         $email = $request->input('email');
         $password = $request->input('password');
+
+        #// TODO: check for username and email uniqueness
 
         $user = new User([
             'first_name' => $first_name,
             'last_name' => $last_name,
+            'username' => $username,
             'password' => Hash::make($password),
             'email' => $email,
         ]);
 
-        //return response()->json(compact('user'), 201);
-
         if ($user->save()) {
-            $response = [
-                'user' => $user
-            ];
-
             $token = JWTAuth::fromUser($user);
-
 
             return response()->json(compact('user','token'), 201);
         }
@@ -59,11 +57,6 @@ class AuthController extends Controller
             'email' => 'required|email',
             'password' => 'required'
         ]);
-
-        // if ($validator->fails()) {
-        //    $error = $validator->errors()->first();
-        //    return response()->json(compact('errors'), 404);
-        // }
 
         $credentials = $request->only('email', 'password');
 

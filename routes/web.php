@@ -7,11 +7,11 @@ Route::group(['prefix' => 'api'], function() {
     ]);
 
     Route::resource('teams/registration', 'TeamsRegistrationController', [
-        'only' => ['store', 'destroy'] //user_id, team_id, type="member, channel"
+        'only' => ['store', 'destroy']
     ]);
 
     Route::resource('channels/registration', 'ChannelsRegistrationController', [
-        'only' => ['store', 'destroy'] //user_id, channel_id
+        'only' => ['store', 'destroy']
     ]);
 
     Route::resource('channels', 'ChannelsController', [
@@ -20,6 +20,10 @@ Route::group(['prefix' => 'api'], function() {
 
     Route::resource('messages', 'MessagesController', [
         'except' => ['edit', 'create']
+    ]);
+
+    Route::resource('invites', 'InvitesController', [
+        'except' => ['show', 'edit', 'create']
     ]);
   });
 
@@ -31,3 +35,10 @@ Route::group(['prefix' => 'api'], function() {
         'uses' => 'AuthController@signin'
     ]);
 });
+
+// Display all SQL executed in Eloquent
+// \Event::listen('Illuminate\Database\Events\QueryExecuted', function ($query) {
+//     var_dump($query->sql);
+//     var_dump($query->bindings);
+//     var_dump($query->time);
+// });

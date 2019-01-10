@@ -16,4 +16,7 @@ class Team extends Model
 	public function channels() {
 		return $this->hasMany('App\Channel');
 	}
+  public function invites(){
+    return $this->hasMany('App/Invite');
+  }
 }

@@ -12,10 +12,10 @@ class Message extends Model
     ];
 
     public function users() {
-		return $this->hasOne('App\User');
+		return $this->belongsTo('App\User');
 	}
 
 	public function channels() {
-		return $this->hasOne('App\Channel');
+		return $this->belongsTo('App\Channel');
 	}
 }
