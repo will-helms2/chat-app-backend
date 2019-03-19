@@ -11,10 +11,6 @@
 |
 */
 
-Broadcast::channel('private-chat', function ($user, $id) {
-    return true;
-});
-
 Broadcast::channel('chat-channel-{channel_id}', function ($user, $channel_id) {
     return true;
 });

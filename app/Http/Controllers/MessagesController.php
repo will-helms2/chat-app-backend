@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Message;
+use App\Events\MessageSent;
 
 class MessagesController extends Controller
 {
@@ -11,9 +13,25 @@ class MessagesController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+      $this->validate($request, [
+        'channel_id' => 'required',
+        'files_only' => 'String'
+      ]);
+
+      $channel_id = $request->input('channel_id');
+      $files_only = $request->input('files_only', false);
+
+      if(!$files_only){
+        $messages = Message::where('channel_id', $channel_id)->get();
+      }else{
+        $messages = Message::where([['is_file', 1],['channel_id', $channel_id]])->get();
+      }
+
+      return response()->json($messages, 201);
+
+
     }
 
     /**
@@ -30,24 +48,29 @@ class MessagesController extends Controller
           'user_id' => 'required',
           'content' => 'required|String',
           'is_file' => 'required|Boolean',
+          'photo_url' => 'String'
         ]);
 
         $channel_id = $request->input('channel_id');
         $user_id = $request->input('user_id');
         $content = $request->input('content');
-        $is_file = $request->input('is_private');
+        $is_file = $request->input('is_file');
+        $photo_url = $request->input('photo_url');
 
         #// TODO: make sure the user has access to this channel
 
         $message = new Message([
           'channel_id' => $channel_id,
-          '$user_id' => $user_id,
+          'user_id' => $user_id,
           'content' => $content,
-          'is_file' => $is_file
+          'is_file' => $is_file,
+          'photo_url' => $photo_url,
         ]);
 
         if ($message->save()) {
-          return response()->json(compact('message'), 201);
+          $fullMessage = Message::with(['user'])->findOrFail($message->id);
+          broadcast(new MessageSent($this->user(), $fullMessage, $channel_id))->toOthers();
+          return response()->json($message, 201);
         }
 
         $response = [

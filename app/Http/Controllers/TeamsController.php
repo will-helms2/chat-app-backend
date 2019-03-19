@@ -5,6 +5,7 @@ use App\Team;
 use Illuminate\Http\Request;
 use JWTAuth;
 use App\User;
+use App\Channel;
 
 class TeamsController extends Controller
 {
@@ -16,7 +17,7 @@ class TeamsController extends Controller
     public function index()
     {
   		$teams = $this->user()->teams()->get();
-  		return response()->json(compact($teams), 200);
+  		return response()->json($teams, 200);
     }
 
 
@@ -51,11 +52,13 @@ class TeamsController extends Controller
     			'is_private' => 0
     		]);
 
+        $this->user()->teams()->attach($team);
+
         if($channel->save()){
-          
+          $this->user()->channels()->attach($channel);
         }
 
-  			return response()->json(compact('team'), 201);
+  			return response()->json($team, 201);
   		}
 
   		$response = [
@@ -74,9 +77,16 @@ class TeamsController extends Controller
     public function show($id)
     {
       #// TODO: Make sure the user has accress to the team they are trying to load
-      $team = Team::with(['users', 'channels'])->findOrFail($id);
+      $team = Team::with('users')->findOrFail($id);
+      $team["direct_messages"] = $this->user()->channels()->with(['users' => function($query) {
+          $query->where('user_id', '!=', $this->user()->id);
+      }])->where([["is_dm", true],["team_id", $team->id]])->get();
+      $team["channels"] = $this->user()->channels()->where([["is_dm", false],["team_id", $team->id]])->get();
+      $team["public_channels"] = Channel::whereDoesntHave('users', function ($query) {
+          $query->where('user_id', '=', $this->user()->id);
+      })->where([["channels.team_id", $team->id], ["channels.is_private", false]])->get();
 
-      return response()->json(compact(team), 500);
+      return response()->json($team, 200);
     }
 
     /**

@@ -19,7 +19,8 @@ class AuthController extends Controller
             'last_name' => 'required',
             'username' => 'required',
             'email' => 'required|email',
-            'password' => 'required|min:5'
+            'password' => 'required|min:5',
+            'password_confirmation' => 'required|min:5'
         ]);
 
         $first_name = $request->input('first_name');
@@ -27,6 +28,11 @@ class AuthController extends Controller
         $username = $request->input('username');
         $email = $request->input('email');
         $password = $request->input('password');
+        $password_confirmation = $request->input('password_confirmation');
+
+        if($password != $password_confirmation){
+            return response()->json(['error' => 'Passwords do not match'], 400);
+        }
 
         #// TODO: check for username and email uniqueness
 
@@ -40,6 +46,8 @@ class AuthController extends Controller
 
         if ($user->save()) {
             $token = JWTAuth::fromUser($user);
+
+            $user = User::with(['teams', 'invites'])->where("email", $request->input('email'))->first();
 
             return response()->json(compact('user','token'), 201);
         }
@@ -60,15 +68,17 @@ class AuthController extends Controller
 
         $credentials = $request->only('email', 'password');
 
-            try {
-                if (! $token = JWTAuth::attempt($credentials)) {
-                    return response()->json(['error' => 'Email and Password do not match'], 400);
-                }
-            } catch (JWTException $e) {
-                return response()->json(['error' => 'could_not_create_token'], 500);
+        try {
+            if (! $token = JWTAuth::attempt($credentials)) {
+                return response()->json(['error' => 'Email and Password do not match'], 400);
             }
+        } catch (JWTException $e) {
+            return response()->json(['error' => 'could_not_create_token'], 500);
+        }
 
-        return response()->json(compact('token'), 200);
+        $user = User::with(['teams', 'invites'])->where("email", $request->input('email'))->first();
+
+        return response()->json(compact('user', 'token'), 200);
     }
 
     public function getAuthenticatedUser()
@@ -94,5 +104,23 @@ class AuthController extends Controller
           }
 
           return response()->json(compact('user'));
+    }
+
+    public function validateUser(Request $request)
+    {
+      $user = User::with(['teams', 'invites'])->where("id", $this->user()->id)->first();
+      $token = JWTAuth::fromUser($this->user());
+
+      return response()->json(compact('user', 'token'), 200);
+    }
+
+    public function getUserData(Request $request){
+      $this->validate($request, [
+          'user_id' => 'required',
+      ]);
+      //// TODO: make sure this user can view data from that user
+      $user = User::where("id", $request->input('user_id'))->first();
+
+      return response()->json(compact('user'), 200);
     }
 }

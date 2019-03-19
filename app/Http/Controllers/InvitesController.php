@@ -16,13 +16,9 @@ class InvitesController extends Controller
      */
     public function index()
     {
-      $team_invites = Invite::with(['team:id,name,string', 'ownedUser:id,first_name,last_name'])->where('invited_user_id',$this->user()->id)->get();
+      $team_invites = Invite::with(['team:id,name,string', 'ownedUser:id,first_name,last_name,email'])->where('invited_user_id',$this->user()->id)->get();
 
-      $response = [
-        'invites' => $team_invites
-      ];
-
-      return response()->json($response, 200);
+      return response()->json($team_invites, 200);
     }
 
     /**

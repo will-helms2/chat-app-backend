@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class DeleteTeamIdForUserColumn extends Migration
+class AddPhotoUrlToMessagesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,9 +13,8 @@ class DeleteTeamIdForUserColumn extends Migration
      */
     public function up()
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->dropForeign('users_team_id_foreign');
-			$table->dropColumn('team_id');
+        Schema::table('messages', function (Blueprint $table) {
+            $table->string('photo_url')->nullable();
         });
     }
 
@@ -26,8 +25,8 @@ class DeleteTeamIdForUserColumn extends Migration
      */
     public function down()
     {
-        Schema::table('users', function (Blueprint $table) {
-            //
+        Schema::table('messages', function (Blueprint $table) {
+            $table->dropColumn('photo_url');
         });
     }
 }

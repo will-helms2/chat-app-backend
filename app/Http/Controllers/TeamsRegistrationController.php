@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 use App\Team;
 use App\User;
+use App\Invite;
 use Illuminate\Http\Request;
 
 class TeamsRegistrationController extends Controller
@@ -32,6 +33,8 @@ class TeamsRegistrationController extends Controller
 		}
     #// TODO: check to make sure the user has an invite. Security measure before Prod
     //if($this->user()->invites())
+
+    $invite = Invite::where([["team_id", "=", $team_id],["invited_user_id", "=", $this->user()->id]])->delete();
 
 		$this->user()->teams()->attach($team); // Adds to pivot table
 

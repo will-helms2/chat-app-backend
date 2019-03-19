@@ -10,6 +10,10 @@ Route::group(['prefix' => 'api'], function() {
         'only' => ['store', 'destroy']
     ]);
 
+    Route::post('teams/photo', [
+        'uses' => 'PhotosController@teamPhoto'
+    ]);
+
     Route::resource('channels/registration', 'ChannelsRegistrationController', [
         'only' => ['store', 'destroy']
     ]);
@@ -18,12 +22,28 @@ Route::group(['prefix' => 'api'], function() {
         'except' => ['edit, create']
     ]);
 
+    Route::post('channels/dm', [
+        'uses' => 'ChannelsController@createDM'
+    ]);
+
     Route::resource('messages', 'MessagesController', [
         'except' => ['edit', 'create']
     ]);
 
+    Route::post('messages/file', [
+        'uses' => 'PhotosController@messageFile'
+    ]);
+
     Route::resource('invites', 'InvitesController', [
         'except' => ['show', 'edit', 'create']
+    ]);
+
+    Route::get('user/validate', [
+        'uses' => 'AuthController@validateUser'
+    ]);
+
+    Route::get('user/profile', [
+        'uses' => 'AuthController@getUserData'
     ]);
   });
 
@@ -33,6 +53,10 @@ Route::group(['prefix' => 'api'], function() {
 
     Route::post('user/signin', [
         'uses' => 'AuthController@signin'
+    ]);
+
+    Route::post('user/photo', [
+        'uses' => 'PhotosController@userPhoto'
     ]);
 });
 

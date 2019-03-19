@@ -5,7 +5,7 @@ use App\Team;
 use App\User;
 use Illuminate\Http\Request;
 
-class TeamsRegistrationController extends Controller
+class ChannelRegistrationController extends Controller
 {
     /**
      * Store a newly created resource in storage.
